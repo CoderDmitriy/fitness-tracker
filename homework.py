@@ -1,29 +1,33 @@
+from dataclasses import asdict, dataclass
+
+from typing import Union
+
+
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
-    def __init__(self,
-                 training_type: str,
-                 duration: float,
-                 distance: float,
-                 speed: float,
-                 calories: float
-                 ) -> None:
-        self.training_type = training_type
-        self.duration = duration
-        self.distance = distance
-        self.speed = speed
-        self.calories = calories
+    training_type: str
+    duration: float
+    distance: float
+    speed: float
+    calories: float
+
+    MESSAGE = ('Тип тренировки: {training_type};'
+               ' Длительность: {duration:.3f} ч.;'
+               ' Дистанция: {distance:.3f} км;'
+               ' Ср. скорость: {speed:.3f} км/ч;'
+               ' Потрачено ккал: {calories:.3f}.')
 
     def get_message(self) -> str:
         """Получить информационное сообщение"""
-        return (f'Тип тренировки: {self.training_type};'
-                f' Длительность: {self.duration:.3f} ч.;'
-                f' Дистанция: {self.distance:.3f} км;'
-                f' Ср. скорость: {self.speed:.3f} км/ч;'
-                f' Потрачено ккал: {self.calories:.3f}.')
+        return self.MESSAGE.format(**asdict(self))
 
 
 class Training:
     """Базовый класс тренировки."""
+    M_IN_KM: int = 1000
+    LEN_STEP: float = 0.65
+    COEFF_MINS: int = 60
 
     def __init__(self,
                  action: int,
@@ -33,9 +37,6 @@ class Training:
         self.action = action
         self.duration = duration
         self.weight = weight
-
-    M_IN_KM = 1000
-    LEN_STEP = 0.65
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
@@ -47,7 +48,7 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        pass
+        raise NotImplementedError
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -62,13 +63,11 @@ class Training:
 class Running(Training):
     """Тренировка: бег."""
 
-    COEFF_MINS = 60
     COEFF_CALORIE_1 = 18
     COEFF_CALORIE_2 = 20
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий во время бега"""
-
         return ((self.COEFF_CALORIE_1
                 * self.get_mean_speed()
                 - self.COEFF_CALORIE_2)
@@ -87,7 +86,6 @@ class SportsWalking(Training):
         super().__init__(action, duration, weight)
         self.height = height
 
-    COEFF_MINS = 60
     COEFF_CALORIE_5 = 0.035
     COEFF_CALORIE_6 = 0.029
 
@@ -136,13 +134,20 @@ class Swimming(Training):
                  / self.duration))
 
 
-def read_package(workout_type: str, data: list) -> Training:
+def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    view_training = {'SWM': Swimming,
-                     'RUN': Running,
-                     'WLK': SportsWalking}
-    Final = view_training[workout_type](*data)
-    return Final
+    DataDict = Union['Running', 'SportsWalking', 'Swimming']
+    CustomDict = dict[str, DataDict]
+    view_training: CustomDict = {'SWM': Swimming,
+                                 'RUN': Running,
+                                 'WLK': SportsWalking}
+    try:
+        training = view_training[workout_type]
+
+    except Exception:
+        print('Отсутствует такой тип тренировки')
+    final: DataDict = training(*data)
+    return final
 
 
 def main(training: Training) -> None:
