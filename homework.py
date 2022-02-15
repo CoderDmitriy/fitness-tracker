@@ -139,7 +139,12 @@ def read_package(workout_type: str, data: list) -> Training:
     view_training = {'SWM': Swimming,
                      'RUN': Running,
                      'WLK': SportsWalking}
-    final = view_training[workout_type](*data)
+    try:
+        training = view_training[workout_type]
+
+    except Exception:
+        print('Отсутствует такой тип тренировки')
+    final = training(*data)
     return final
 
 
