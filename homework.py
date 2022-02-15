@@ -23,6 +23,9 @@ class InfoMessage:
 
 class Training:
     """Базовый класс тренировки."""
+    M_IN_KM: int = 1000
+    LEN_STEP: float = 0.65
+    COEFF_MINS: int = 60
 
     def __init__(self,
                  action: int,
@@ -32,9 +35,6 @@ class Training:
         self.action = action
         self.duration = duration
         self.weight = weight
-
-    M_IN_KM = 1000
-    LEN_STEP = 0.65
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
