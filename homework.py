@@ -1,5 +1,4 @@
 from dataclasses import dataclass, asdict
-from typing import Union
 
 
 @dataclass
@@ -61,7 +60,6 @@ class Training:
 
 class Running(Training):
     """Тренировка: бег."""
-
     COEFF_MINS = 60
     COEFF_CALORIE_1 = 18
     COEFF_CALORIE_2 = 20
@@ -77,6 +75,10 @@ class Running(Training):
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
+    COEFF_MINS = 60
+    COEFF_CALORIE_5 = 0.035
+    COEFF_CALORIE_6 = 0.029
+
     def __init__(self,
                  action: int,
                  duration: float,
@@ -85,10 +87,6 @@ class SportsWalking(Training):
                  ) -> None:
         super().__init__(action, duration, weight)
         self.height = height
-
-    COEFF_MINS = 60
-    COEFF_CALORIE_5 = 0.035
-    COEFF_CALORIE_6 = 0.029
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий во время ходьбы"""
@@ -137,17 +135,15 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    DataDict = Union['Running', 'SportsWalking', 'Swimming']
-    CustomDict = dict[str, DataDict]
-    view_training: CustomDict = {'SWM': Swimming,
-                                 'RUN': Running,
-                                 'WLK': SportsWalking}
+    view_training = {'SWM': Swimming,
+                     'RUN': Running,
+                     'WLK': SportsWalking}
     try:
         training = view_training[workout_type]
 
     except Exception:
         print('Отсутствует такой тип тренировки')
-    final: DataDict = training(*data)
+    final = training(*data)
     return final
 
 
