@@ -1,4 +1,5 @@
 from dataclasses import dataclass, asdict
+from typing import Dict, Type
 
 
 @dataclass
@@ -60,7 +61,6 @@ class Training:
 
 class Running(Training):
     """Тренировка: бег."""
-    COEFF_MINS = 60
     COEFF_CALORIE_1 = 18
     COEFF_CALORIE_2 = 20
 
@@ -75,7 +75,6 @@ class Running(Training):
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
-    COEFF_MINS = 60
     COEFF_CALORIE_5 = 0.035
     COEFF_CALORIE_6 = 0.029
 
@@ -103,6 +102,10 @@ class SportsWalking(Training):
 
 class Swimming(Training):
     """Тренировка: плавание."""
+    LEN_STEP = 1.38
+    COEFF_CALORIE_3 = 1.1
+    COEFF_CALORIE_4 = 2
+
     def __init__(self,
                  action: int,
                  duration: float,
@@ -113,10 +116,6 @@ class Swimming(Training):
         super().__init__(action, duration, weight)
         self.length_pool = length_pool
         self.count_pool = count_pool
-
-    LEN_STEP = 1.38
-    COEFF_CALORIE_3 = 1.1
-    COEFF_CALORIE_4 = 2
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий во время плавания"""
@@ -135,13 +134,13 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    view_training = {'SWM': Swimming,
-                     'RUN': Running,
-                     'WLK': SportsWalking}
+    view_training: Dict[str, Type[Training]] = {'SWM': Swimming,
+                                                'RUN': Running,
+                                                'WLK': SportsWalking}
     try:
         training = view_training[workout_type]
 
-    except Exception:
+    except KeyError:
         print('Отсутствует такой тип тренировки')
     final = training(*data)
     return final
