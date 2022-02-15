@@ -1,4 +1,5 @@
 from dataclasses import dataclass, asdict
+from typing import Union
 
 
 @dataclass
@@ -134,17 +135,19 @@ class Swimming(Training):
                  / self.duration))
 
 
-def read_package(workout_type: str, data: list[int]) -> Training:
+def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    view_training = {'SWM': Swimming,
-                     'RUN': Running,
-                     'WLK': SportsWalking}
+    DataDict = Union['Running', 'SportsWalking', 'Swimming']
+    CustomDict = dict[str, DataDict]
+    view_training: CustomDict = {'SWM': Swimming,
+                                 'RUN': Running,
+                                 'WLK': SportsWalking}
     try:
         training = view_training[workout_type]
 
     except Exception:
         print('Отсутствует такой тип тренировки')
-    final = training(*data)
+    final: DataDict = training(*data)
     return final
 
 
