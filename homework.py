@@ -137,7 +137,6 @@ def read_package(workout_type: str, data: list[int]) -> Training:
     view_training = {'SWM': Swimming,
                      'RUN': Running,
                      'WLK': SportsWalking}
-
     final = view_training[workout_type](*data)
     return final
 
